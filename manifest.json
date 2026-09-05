@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "atsokolas.frontpage",
+  "name": "The Front Page",
+  "version": "1.0.0",
+  "author": "atsokolas",
+  "license": "MIT",
+  "description": "The day's building, painting, quote, and fixtures on one page, delivered at the first unlock each morning.",
+  "kinds": [
+    "service",
+    "overlay"
+  ],
+  "entryPoints": {
+    "service": "Service.qml",
+    "overlay": "FrontPage.qml"
+  }
+}
