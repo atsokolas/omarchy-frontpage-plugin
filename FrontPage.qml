@@ -275,13 +275,21 @@ Item {
     property var lines: []
 
     Layout.fillWidth: true
-    Layout.fillHeight: true
+    // A column is as tall as what it sets. Filling the row instead would give
+    // every section half the page and let the long ones print over the row
+    // below, so the height comes from the type and the page keeps the slack.
+    Layout.preferredHeight: stack.implicitHeight
+    Layout.alignment: Qt.AlignTop
+    implicitHeight: stack.implicitHeight
     visible: present
     opacity: root.landed(index)
     transform: Translate { y: (1 - root.landed(index)) * Style.space(10) }
 
     Column {
-      anchors.fill: parent
+      id: stack
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: parent.top
       spacing: Style.space(6)
 
       Row {
