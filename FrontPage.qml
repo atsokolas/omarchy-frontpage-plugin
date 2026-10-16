@@ -27,12 +27,16 @@ Item {
 
   readonly property date today: new Date()
 
-  property color background: Color.menu.background
-  property color foreground: Color.menu.text
+  // The menu card's colours, taken from the theme palette the service
+  // watches: the shell's Color singleton isn't visible to plugins.
+  readonly property var palette: serviceFor("atsokolas.frontpage") ? serviceFor("atsokolas.frontpage").palette : null
+  property color background: palette ? palette.background : "#1a1b26"
+  property color foreground: palette ? palette.foreground : "#a9b1d6"
+  property color accent: palette ? palette.accent : foreground
   property color dim: Qt.darker(foreground, 1.55)
-  property color border: Color.menu.border
+  property color border: foreground
   property var borderSpec: Border.surfaceSpec("menu", "border", border, Math.max(1, Style.space(2)))
-  property color scrim: Color.menu.scrim
+  property color scrim: Qt.rgba(background.r, background.g, background.b, 0.5)
   property string fontFamily: Style.font.menuFamily
   property int contentMargin: Style.spacing.panelPadding
   property int cardWidth: Math.min(Style.space(820), panel.width - Style.gapsOut * 2)
@@ -298,7 +302,7 @@ Item {
 
         Text {
           text: section.heading.toUpperCase()
-          color: Color.accent
+          color: root.accent
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
           font.bold: true
