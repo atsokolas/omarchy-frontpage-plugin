@@ -90,6 +90,14 @@ function fixtureLines(matches, limit) {
   return out
 }
 
+// "PSG put four past City · 4 min" — the Quattro Daily's lead, for the strip
+// under the masthead.
+function paperLine(entry) {
+  if (!entry || !entry.headline) return ""
+  var minutes = Math.max(1, Math.round(Number(entry.minutes) || 1))
+  return String(entry.headline) + "  ·  " + minutes + " min read"
+}
+
 // The theme's palette from colors.toml. The shell's Color singleton isn't
 // visible to third-party plugins, so the plugin reads the file itself.
 function parseColors(toml) {
@@ -127,6 +135,7 @@ if (typeof module !== "undefined") {
     sectionFor: sectionFor,
     kickoffLabel: kickoffLabel,
     fixtureLine: fixtureLine,
-    fixtureLines: fixtureLines
+    fixtureLines: fixtureLines,
+    paperLine: paperLine
   }
 }

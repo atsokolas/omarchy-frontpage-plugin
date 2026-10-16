@@ -34,3 +34,9 @@ test("fixtures read as one line each, in the match's state", () => {
   assert.equal(Model.fixtureLine(null), "")
   assert.deepEqual(Model.fixtureLines([{ home, away, state: "finished" }, null, { home, away, state: "finished" }], 1).length, 1)
 })
+
+test("the paper strip reads the Quattro Daily's lead and its length", () => {
+  assert.equal(Model.paperLine({ headline: "17 commits landed across seven plugins", minutes: 4 }), "17 commits landed across seven plugins  ·  4 min read")
+  assert.equal(Model.paperLine({ headline: "Quiet", minutes: 0 }), "Quiet  ·  1 min read")
+  assert.equal(Model.paperLine(null), "")
+})

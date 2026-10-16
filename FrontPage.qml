@@ -24,6 +24,9 @@ Item {
   readonly property var easel: serviceFor("atsokolas.easel")
   readonly property var munger: serviceFor("atsokolas.munger")
   readonly property var kickoff: serviceFor("atsokolas.kickoff")
+  // The Quattro Daily, when it's installed: yesterday's paper, one key away.
+  readonly property var daily: serviceFor("atsokolas.daily")
+  readonly property var paper: daily && daily.latest ? daily.latest : null
 
   readonly property date today: new Date()
 
@@ -63,6 +66,13 @@ Item {
   function toggle() {
     if (root.opened) root.dismiss()
     else root.open("{}")
+  }
+
+  // Put the page down and open yesterday's paper in the browser.
+  function readPaper() {
+    if (!root.paper) return
+    root.dismiss()
+    root.daily.open(root.paper)
   }
 
   // Put the page down and open the widget itself.
@@ -134,6 +144,11 @@ Item {
             event.accepted = true
             return
           }
+          if (event.text === "p" && root.paper) {
+            root.readPaper()
+            event.accepted = true
+            return
+          }
           var section = Model.sectionFor(event.text)
           if (section) {
             root.visit(section)
@@ -190,6 +205,50 @@ Item {
           }
 
           Rectangle { Layout.fillWidth: true; height: 1; color: root.foreground; opacity: 0.35 }
+
+          // ---- Your paper -------------------------------------------------
+          Item {
+            Layout.fillWidth: true
+            visible: root.paper !== null
+            implicitHeight: paperRow.implicitHeight
+            opacity: root.landed(0)
+
+            RowLayout {
+              id: paperRow
+              anchors.left: parent.left
+              anchors.right: parent.right
+              spacing: Style.space(10)
+
+              Text {
+                text: "YOUR PAPER"
+                color: root.accent
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption
+                font.bold: true
+                font.letterSpacing: 1.6
+              }
+              Text {
+                Layout.fillWidth: true
+                text: Model.paperLine(root.paper)
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.bodySmall
+                elide: Text.ElideRight
+              }
+              Text {
+                text: "p"
+                color: root.dim
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption
+              }
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              onClicked: root.readPaper()
+            }
+          }
 
           // ---- The four columns -------------------------------------------
           GridLayout {
@@ -251,7 +310,7 @@ Item {
           // ---- Footer -----------------------------------------------------
           Text {
             Layout.fillWidth: true
-            text: "e  elevation   ·   a  easel   ·   m  munger   ·   k  kickoff   ·   esc  put it down"
+            text: (root.paper ? "p  your paper   ·   " : "") + "e  elevation   ·   a  easel   ·   m  munger   ·   k  kickoff   ·   esc  put it down"
             color: Qt.darker(root.foreground, 2.1)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
