@@ -50,6 +50,7 @@ Any subset works.
 | `a` | Open Easel |
 | `m` | Open Munger |
 | `k` | Open Kickoff |
+| `p` | Read yesterday's Quattro Daily, when it's installed |
 | Esc, Return, Space | Put it down |
 
 Clicking a section opens that widget; clicking outside the page puts it down.
