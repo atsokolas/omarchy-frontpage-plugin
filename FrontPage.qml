@@ -24,6 +24,7 @@ Item {
   readonly property var easel: serviceFor("atsokolas.easel")
   readonly property var munger: serviceFor("atsokolas.munger")
   readonly property var kickoff: serviceFor("atsokolas.kickoff")
+  readonly property string home: Quickshell.env("HOME") || ""
   // The Quattro Daily, when it's installed: yesterday's paper, one key away.
   readonly property var daily: serviceFor("atsokolas.daily")
   readonly property var paper: daily && daily.latest ? daily.latest : null
@@ -176,6 +177,7 @@ Item {
               spacing: Style.space(2)
 
               Text {
+                textFormat: Text.PlainText
                 text: Model.APP_NAME.toUpperCase()
                 color: root.foreground
                 font.family: root.fontFamily
@@ -185,6 +187,7 @@ Item {
               }
 
               Text {
+                textFormat: Text.PlainText
                 text: Model.masthead(root.today)
                 color: root.dim
                 font.family: root.fontFamily
@@ -193,6 +196,7 @@ Item {
             }
 
             Text {
+              textFormat: Text.PlainText
               id: edition
               anchors.right: parent.right
               anchors.bottom: parent.bottom
@@ -220,6 +224,7 @@ Item {
               spacing: Style.space(10)
 
               Text {
+                textFormat: Text.PlainText
                 text: "YOUR PAPER"
                 color: root.accent
                 font.family: root.fontFamily
@@ -228,15 +233,16 @@ Item {
                 font.letterSpacing: 1.6
               }
               Text {
-                Layout.fillWidth: true
-                text: Model.paperLine(root.paper)
                 textFormat: Text.PlainText
+                Layout.fillWidth: true
+                text: Model.plain(Model.paperLine(root.paper))
                 color: root.foreground
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.bodySmall
                 elide: Text.ElideRight
               }
               Text {
+                textFormat: Text.PlainText
                 text: "p"
                 color: root.dim
                 font.family: root.fontFamily
@@ -265,6 +271,7 @@ Item {
               present: root.elevation !== null
               heading: "Elevation"
               key: "e"
+              cache: "elevation"
               imagePath: root.elevation ? root.elevation.imagePath : ""
               title: root.elevation && root.elevation.entry ? root.elevation.entry.n : ""
               meta: root.elevation && root.elevation.entry ? [root.elevation.entry.a, root.elevation.entry.y].join(" · ") : ""
@@ -277,6 +284,7 @@ Item {
               present: root.easel !== null
               heading: "Easel"
               key: "a"
+              cache: "easel"
               imagePath: root.easel ? root.easel.imagePath : ""
               fit: true
               title: root.easel && root.easel.art ? root.easel.art.title : (root.easel ? root.easel.error : "")
@@ -310,6 +318,7 @@ Item {
 
           // ---- Footer -----------------------------------------------------
           Text {
+            textFormat: Text.PlainText
             Layout.fillWidth: true
             text: (root.paper ? "p  your paper   ·   " : "") + "e  elevation   ·   a  easel   ·   m  munger   ·   k  kickoff   ·   esc  put it down"
             color: Qt.darker(root.foreground, 2.1)
@@ -330,7 +339,11 @@ Item {
     property bool present: true
     property string heading: ""
     property string key: ""
+    property string cache: ""
     property string imagePath: ""
+    // Only a picture inside the widget's own cache folder; anything else and
+    // the column sets without one.
+    readonly property string imageSource: Model.imageSource(root.home, cache, imagePath)
     property bool fit: false
     property string title: ""
     property string meta: ""
@@ -361,6 +374,7 @@ Item {
         spacing: Style.space(6)
 
         Text {
+          textFormat: Text.PlainText
           text: section.heading.toUpperCase()
           color: root.accent
           font.family: root.fontFamily
@@ -370,6 +384,7 @@ Item {
         }
 
         Text {
+          textFormat: Text.PlainText
           text: section.key
           color: Qt.darker(root.foreground, 2.1)
           font.family: root.fontFamily
@@ -379,8 +394,8 @@ Item {
 
       Rectangle {
         width: parent.width
-        height: section.imagePath !== "" ? Math.round(width * 0.42) : 0
-        visible: section.imagePath !== ""
+        height: section.imageSource !== "" ? Math.round(width * 0.42) : 0
+        visible: section.imageSource !== ""
         radius: Style.cornerRadius
         clip: true
         color: Qt.rgba(root.foreground.r, root.foreground.g, root.foreground.b, 0.05)
@@ -388,7 +403,10 @@ Item {
         Image {
           anchors.fill: parent
           anchors.margins: section.fit ? Style.space(6) : 0
-          source: section.imagePath !== "" ? "file://" + section.imagePath : ""
+          // Decoded at the size it's shown, not the size it was downloaded.
+          source: width > 0 && height > 0 ? section.imageSource : ""
+          sourceSize.width: Math.ceil(width)
+          sourceSize.height: Math.ceil(height)
           fillMode: section.fit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
           asynchronous: true
           cache: false
@@ -398,9 +416,10 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         width: parent.width
         visible: section.quote !== ""
-        text: section.quote
+        text: Model.plain(section.quote)
         color: root.foreground
         font.family: root.fontFamily
         font.pixelSize: section.quote.length > 120 ? Style.font.body : Style.font.subtitle
@@ -409,9 +428,10 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         width: parent.width
         visible: section.title !== ""
-        text: section.title
+        text: Model.plain(section.title)
         color: root.foreground
         font.family: root.fontFamily
         font.pixelSize: Style.font.subtitle
@@ -422,9 +442,10 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         width: parent.width
         visible: section.meta !== ""
-        text: section.meta
+        text: Model.plain(section.meta)
         color: root.dim
         font.family: root.fontFamily
         font.pixelSize: Style.font.bodySmall
@@ -434,9 +455,10 @@ Item {
       Repeater {
         model: section.lines
         Text {
+          textFormat: Text.PlainText
           required property string modelData
           width: parent.width
-          text: modelData
+          text: Model.plain(modelData)
           color: root.foreground
           font.family: root.fontFamily
           font.pixelSize: Style.font.body
@@ -445,14 +467,15 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         width: parent.width
         visible: section.body !== ""
-        text: section.body
+        text: Model.plain(section.body)
         color: root.dim
         font.family: root.fontFamily
         font.pixelSize: Style.font.bodySmall
         wrapMode: Text.WordWrap
-        maximumLineCount: section.imagePath !== "" ? 3 : 6
+        maximumLineCount: section.imageSource !== "" ? 3 : 6
         elide: Text.ElideRight
       }
     }

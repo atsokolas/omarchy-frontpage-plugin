@@ -98,6 +98,35 @@ function paperLine(entry) {
   return String(entry.headline) + "  ·  " + minutes + " min read"
 }
 
+// Everything the page sets comes from the other widgets' services, which
+// fetch it from the network. The page prints it as plain text (every Text is
+// Text.PlainText); this keeps it a string, without control characters, and no
+// longer than a column could ever show.
+var TEXT_LIMIT = 2000
+
+function plain(value, limit) {
+  if (value === null || value === undefined) return ""
+  var max = parseInt(limit, 10) || TEXT_LIMIT
+  var s = String(value).replace(/\t/g, " ").replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, "")
+  return s.length > max ? s.substring(0, max - 1) + "…" : s
+}
+
+// A picture another widget cached: only a file directly inside that widget's
+// own cache folder, named the way it names them, and never a URL.
+var IMAGE_CACHES = { elevation: "elevation", easel: "easel" }
+
+function imageSource(home, cache, path) {
+  var dir = IMAGE_CACHES[cache]
+  var h = String(home || "")
+  var p = String(path || "")
+  if (!dir || h.charAt(0) !== "/" || h.indexOf("\u0000") >= 0) return ""
+  var prefix = h + "/.cache/omarchy/" + dir + "/"
+  if (p.indexOf(prefix) !== 0) return ""
+  var name = p.substring(prefix.length)
+  if (!/^[A-Za-z0-9_.-]{1,200}\.(jpe?g|png|webp)$/i.test(name) || /^\.+/.test(name)) return ""
+  return "file://" + p
+}
+
 // The theme's palette from colors.toml. The shell's Color singleton isn't
 // visible to third-party plugins, so the plugin reads the file itself.
 function parseColors(toml) {
@@ -136,6 +165,9 @@ if (typeof module !== "undefined") {
     kickoffLabel: kickoffLabel,
     fixtureLine: fixtureLine,
     fixtureLines: fixtureLines,
-    paperLine: paperLine
+    paperLine: paperLine,
+    TEXT_LIMIT: TEXT_LIMIT,
+    plain: plain,
+    imageSource: imageSource
   }
 }

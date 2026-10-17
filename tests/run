@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-node --test tests/model.test.js tests/colors.test.js
+node --test tests/model.test.js tests/colors.test.js tests/safety.test.js

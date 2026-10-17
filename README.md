@@ -78,6 +78,11 @@ bindd = SUPER SHIFT, F, The Front Page, exec, omarchy-shell atsokolas.frontpage 
 
 No network of its own. The only file it writes is its own state file.
 
+What the other widgets fetch is treated as untrusted. Every line on the page
+is printed as plain text, so markup in a title or a quote shows as written and
+never loads anything, and pictures are shown only from Elevation's and Easel's
+own cache folders, decoded at the size they're shown.
+
 ## Tests
 
 ```bash
